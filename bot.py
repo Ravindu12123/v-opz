@@ -76,7 +76,7 @@ async def optimize_video(input_path, output_path, chat_id):
             bitrate="500k",
             preset="ultrafast",
             audio=True,
-            progress_bar=False,
+            #progress_bar=False,
             callback=lambda curr, tot: progress_callback(curr, tot, chat_id, os.path.basename(input_path), "Optimization")
         )
 
