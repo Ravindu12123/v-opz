@@ -56,29 +56,75 @@ async def upload_media(chat_id, file_path):
         progress_callback=upload_progress
     )
 
-async def convert_to_mp4(input_path, output_path, chat_id):
-    """Convert video to MP4 format with progress tracking."""
-    with VideoFileClip(input_path) as video:
-        video.write_videofile(
+        
+async def convert_to_mp4(input_path, output_path, filename,edit):
+    progress[filename] = {"pres":"","st":""}
+    progress[filename]["pres"] = "Optimizing: 0%"
+    
+    class MyBarLogger(ProgressBarLogger):
+      def callback(self, **changes):
+        for (parameter, value) in changes.items():
+            progress[filename]["st"]='Parameter %s is now %s' % (parameter, value)
+
+      async def bars_callback(self, bar, attr, value,old_value=None):
+        percentage = (value / self.bars[bar]['total']) * 100
+        npr=f"Optimizing: {percentage:.2f}%"
+        if float(percentage) % 5 == 0:
+           progress[filename]["pres"]=npr
+           print(progress[filename])
+           await edit.edit(f"**Optimizing**\n status: {progress[filename]["st"]}\nprecentage: {progress[filename]["pres"]}")
+    
+    logger = MyBarLogger()
+    try:
+        with VideoFileClip(input_path) as video:
+            video.write_videofile(
             output_path,
             codec="libx264",
             preset="ultrafast",
             audio=True,
-            progress_bar=False,
-            callback=lambda curr, tot: progress_callback(curr, tot, chat_id, os.path.basename(input_path), "Conversion")
-        )
+            logger=logger
+            )
+        progress[filename]["st"] = "Optimized"
+    except Exception as e:
+        progress[filename] = f"Error: {str(e)}"
+        print(f"Error optimizing {filename}: {e}")
+    print("Optimization complete for:", filename)
 
-async def optimize_video(input_path, output_path, chat_id):
-    """Optimizes the video by reducing bitrate, with progress tracking."""
-    with VideoFileClip(input_path) as video:
-        video.write_videofile(
-            output_path,
-            bitrate="500k",
-            preset="ultrafast",
-            audio=True,
-            #progress_bar=False,
-            callback=lambda curr, tot: progress_callback(curr, tot, chat_id, os.path.basename(input_path), "Optimization")
-        )
+
+async def optimize_video(input_path, output_path, filename,edit):
+    progress[filename] = {"pres":"","st":""}
+    progress[filename]["pres"] = "Optimizing: 0%"
+    class MyBarLogger(ProgressBarLogger):
+      def callback(self, **changes):
+        for (parameter, value) in changes.items():
+            progress[filename]["st"]='Parameter %s is now %s' % (parameter, value)
+            #print(progress[filename].st)
+      def bars_callback(self, bar, attr, value,old_value=None):
+        percentage = (value / self.bars[bar]['total']) * 100
+        npr=f"Optimizing: {percentage:.2f}%"
+        #print(progress[filename])
+        if float(percentage) % 5 == 0:
+         #print(number)  # Outpu
+          progress[filename]["pres"]=npr
+          print(progress[filename])
+          edit.edit(f"**Optimizing**\n status: {progress[filename]["st"]}\nprecentage: {progress[filename]["pres"]}")
+    
+    logger = MyBarLogger()
+    try:
+        with VideoFileClip(input_path) as video:
+            video.write_videofile(
+                output_path,
+                bitrate="500k",
+                preset="ultrafast",
+                audio=True,
+                logger=logger
+            )
+        progress[filename]["st"] = "Optimized"
+    except Exception as e:
+        progress[filename] = f"Error: {str(e)}"
+        print(f"Error optimizing {filename}: {e}")
+    print("Optimization complete for:", filename)
+
 
 @client.on(events.NewMessage(pattern='/start'))
 async def start(event):
@@ -98,28 +144,32 @@ async def handle_video(event):
     mp4_path = None
 
     try:
-        await event.reply("Downloading your video...")
-
+        #await event.reply("Downloading your video...")
+        edit=await client.send_message(event.sender_id,"**Downloading...**")
+        
         filename = await download_media(event, DOWNLOAD_DIR)
         output_path = os.path.join(DOWNLOAD_DIR, f"optimized_{os.path.basename(filename)}")
         mp4_path = os.path.join(DOWNLOAD_DIR, f"converted_{os.path.basename(filename)}.mp4")
 
         if not filename.endswith(".mp4"):
-            await event.reply("Converting video to MP4 format...")
-            await convert_to_mp4(filename, mp4_path, event.chat_id)
+            #await event.reply("Converting video to MP4 format...")
+            await edit.edit("**Converting to MP4**")
+            await convert_to_mp4(filename, mp4_path, event.chat_id,edit)
             input_path = mp4_path
         else:
             input_path = filename
 
-        await event.reply("Optimizing the video...")
-        await optimize_video(input_path, output_path, event.chat_id)
+        #await event.reply("Optimizing the video...")
+        await edit.edit("**Optimizing video...**")
+        await optimize_video(input_path, output_path, event.chat_id,edit)
 
-        await event.reply("Uploading the optimized video...")
-        await upload_media(event.chat_id, output_path)
+        #await event.reply("Uploading the optimized video...")
+        await edit.edit("**Uploading...**")
+        await upload_media(event.chat_id, output_path,edit)
 
     except Exception as e:
-        await event.reply(f"Error during processing: {e}")
-
+        #await event.reply(f"Error during processing: {e}")
+        await edit.edit(f"Err during process: {e}")
     finally:
         if filename and os.path.exists(filename):
             os.remove(filename)
