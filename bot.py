@@ -6,8 +6,7 @@ from moviepy.editor import VideoFileClip
 # Replace with your actual credentials
 API_ID = 28234847
 API_HASH = 'a494667c22f483263f1e7612f4f1a576'
-BOT_TOKEN = '7879947375:AAFwuV4am9rCXBUxoHX5BVuxewm2TcDXrUA
-'
+BOT_TOKEN = '7879947375:AAFwuV4am9rCXBUxoHX5BVuxewm2TcDXrUA'
 
 # Directory to store videos
 DOWNLOAD_DIR = "downloads"
