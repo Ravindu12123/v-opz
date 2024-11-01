@@ -1,5 +1,5 @@
 echo "Starting Gunicorn server..."
 gunicorn app:app &
 
-echo "starting VideoConvertor ~@Dronebots";
+echo "starting V-OPZ ~@RVX";
 python3 bot.py
