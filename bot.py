@@ -31,7 +31,7 @@ async def progress_callback(current, total, chat_id, filename, process_name,edit
     if progress_dict.get(filename, 0) + 5 <= percentage:
         progress_dict[filename] = percentage
         asyncio.run_coroutine_threadsafe(
-            client.send_message(chat_id, edit.id, text=f"{process_name} progress: {percentage}%"),
+            client.send_message(chat_id,f"{process_name} progress: {percentage}%"),
             client.loop
         )
 
