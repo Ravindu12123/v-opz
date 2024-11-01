@@ -2,6 +2,8 @@ import os
 import asyncio
 from telethon import TelegramClient, events
 from moviepy.editor import VideoFileClip
+import time
+from proglog import ProgressBarLogger
 
 # Replace with your actual credentials
 API_ID = 28234847
