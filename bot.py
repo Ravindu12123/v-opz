@@ -74,7 +74,7 @@ async def convert_to_mp4(input_path, output_path, filename,edit):
         if float(percentage) % 5 == 0:
            progress[filename]["pres"]=npr
            print(progress[filename])
-           await edit.edit(f"**Optimizing**\n status: {progress[filename]["st"]}\nprecentage: {progress[filename]["pres"]}")
+           await edit.edit(f'**Optimizing**\n status: {progress[filename]["st"]}\nprecentage: {progress[filename]["pres"]}')
     
     logger = MyBarLogger()
     try:
@@ -109,7 +109,7 @@ async def optimize_video(input_path, output_path, filename,edit):
          #print(number)  # Outpu
           progress[filename]["pres"]=npr
           print(progress[filename])
-          edit.edit(f"**Optimizing**\n status: {progress[filename]["st"]}\nprecentage: {progress[filename]["pres"]}")
+          edit.edit(f'**Optimizing**\n status: {progress[filename]["st"]}\nprecentage: {progress[filename]["pres"]}')
     
     logger = MyBarLogger()
     try:
