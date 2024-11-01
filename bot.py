@@ -24,7 +24,7 @@ client = TelegramClient('video_optimizer_bot', API_ID, API_HASH).start(bot_token
 progress_dict = {}
 
 
-def progress_callback(current, total, chat_id, filename, process_name,edit):
+async def progress_callback(current, total, chat_id, filename, process_name,edit):
     """Update conversion/optimization progress and send periodic messages."""
     percentage = int((current / total) * 100)
 
