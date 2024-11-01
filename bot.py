@@ -23,6 +23,7 @@ client = TelegramClient('video_optimizer_bot', API_ID, API_HASH).start(bot_token
 # Dictionary to store progress for each file
 progress_dict = {}
 
+
 def progress_callback(current, total, chat_id, filename, process_name):
     """Update conversion/optimization progress and send periodic messages."""
     percentage = int((current / total) * 100)
@@ -34,21 +35,21 @@ def progress_callback(current, total, chat_id, filename, process_name):
             client.loop
         )
 
-async def download_media(event, output_dir):
+async def download_media(event, output_dir,edit):
     """Download media with progress tracking."""
     filename = None
 
     def download_progress(current, total):
-        progress_callback(current, total, event.chat_id, "Download", "Downloading")
+        progress_callback(current, total, event.chat_id, "Download", "Downloading",edit)
 
     filename = await event.download_media(output_dir, progress_callback=download_progress)
     return filename
 
-async def upload_media(chat_id, file_path):
+async def upload_media(chat_id, file_path,edit):
     """Upload media with progress tracking."""
 
     def upload_progress(current, total):
-        progress_callback(current, total, chat_id, "Upload", "Uploading")
+        progress_callback(current, total, chat_id, "Upload", "Uploading",edit)
 
     await client.send_file(
         chat_id,
@@ -60,6 +61,7 @@ async def upload_media(chat_id, file_path):
 
         
 async def convert_to_mp4(input_path, output_path, filename,edit):
+    progress={}
     progress[filename] = {"pres":"","st":""}
     progress[filename]["pres"] = "Optimizing: 0%"
     
@@ -94,19 +96,17 @@ async def convert_to_mp4(input_path, output_path, filename,edit):
 
 
 async def optimize_video(input_path, output_path, filename,edit):
+    progress={}
     progress[filename] = {"pres":"","st":""}
     progress[filename]["pres"] = "Optimizing: 0%"
     class MyBarLogger(ProgressBarLogger):
       def callback(self, **changes):
         for (parameter, value) in changes.items():
             progress[filename]["st"]='Parameter %s is now %s' % (parameter, value)
-            #print(progress[filename].st)
       def bars_callback(self, bar, attr, value,old_value=None):
         percentage = (value / self.bars[bar]['total']) * 100
         npr=f"Optimizing: {percentage:.2f}%"
-        #print(progress[filename])
         if float(percentage) % 5 == 0:
-         #print(number)  # Outpu
           progress[filename]["pres"]=npr
           print(progress[filename])
           edit.edit(f'**Optimizing**\n status: {progress[filename]["st"]}\nprecentage: {progress[filename]["pres"]}')
@@ -149,7 +149,7 @@ async def handle_video(event):
         #await event.reply("Downloading your video...")
         edit=await client.send_message(event.sender_id,"**Downloading...**")
         
-        filename = await download_media(event, DOWNLOAD_DIR)
+        filename = await download_media(event, DOWNLOAD_DIR,edit)
         output_path = os.path.join(DOWNLOAD_DIR, f"optimized_{os.path.basename(filename)}")
         mp4_path = os.path.join(DOWNLOAD_DIR, f"converted_{os.path.basename(filename)}.mp4")
 
