@@ -24,16 +24,17 @@ client = TelegramClient('video_optimizer_bot', API_ID, API_HASH).start(bot_token
 progress_dict = {}
 
 
-def progress_callback(current, total, chat_id, filename, process_name):
+def progress_callback(current, total, chat_id, filename, process_name,edit):
     """Update conversion/optimization progress and send periodic messages."""
     percentage = int((current / total) * 100)
 
     if progress_dict.get(filename, 0) + 5 <= percentage:
         progress_dict[filename] = percentage
-        asyncio.run_coroutine_threadsafe(
-            client.send_message(chat_id, f"{process_name} progress: {percentage}%"),
-            client.loop
-        )
+        await edit.edit(f"{process_name} progress: {percentage}%")
+        #asyncio.run_coroutine_threadsafe(
+          #  client.send_message(chat_id, f"{process_name} progress: {percentage}%"),
+           # client.loop
+        #)
 
 async def download_media(event, output_dir,edit):
     """Download media with progress tracking."""
