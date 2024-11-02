@@ -11,7 +11,7 @@ API_HASH = 'a494667c22f483263f1e7612f4f1a576'
 BOT_TOKEN = '7879947375:AAFwuV4am9rCXBUxoHX5BVuxewm2TcDXrUA'
 
 pbt=[
-    [Button.inline("**Update progress**",data="pro_up")]
+    [Button.inline("Update progress",data="pro_up")]
 ]
 
 # Directory to store videos
@@ -185,6 +185,7 @@ async def sh_prog(event):
   except Exception as e:
       await event.edit(f"Err on progress showing: {e}")
 
+#☆on vid -----------------------------------------------------------------------------------------------------------------
 @client.on(events.NewMessage(func=lambda e: e.video))
 async def handle_video(event):
     if event.sender_id not in AUTHORIZED_USERS:
@@ -194,8 +195,11 @@ async def handle_video(event):
     filename = None
     output_path = None
     mp4_path = None
-
-    try:
+    if progress != {}:
+      await client.send_message(event.sender_id,"alredy in a process")
+      return
+    else:
+      try:
         #await event.reply("Downloading your video...")
         edit=await client.send_message(event.sender_id,"**Downloading...**",buttons=pbt)
         
@@ -221,11 +225,11 @@ async def handle_video(event):
         await edit.edit("**Uploading...**",buttons=pbt)
         await upload_media(event.chat_id, output_path,edit)
 
-    except Exception as e:
+      except Exception as e:
         #await event.reply(f"Error during processing: {e}")
         print(f"Err while process: {e}")
         await edit.edit(f"Err during process: {e}")
-    finally:
+      finally:
         if filename and os.path.exists(filename):
             os.remove(filename)
         if mp4_path and os.path.exists(mp4_path):
@@ -234,7 +238,8 @@ async def handle_video(event):
             os.remove(output_path)
         if filename:
             progress_dict.pop(os.path.basename(filename), None)
-
+        if progress!={}:
+            progress={}
 # Start the bot
 print("Bot is running...")
 client.run_until_disconnected()
