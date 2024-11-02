@@ -23,17 +23,20 @@ client = TelegramClient('video_optimizer_bot', API_ID, API_HASH).start(bot_token
 # Dictionary to store progress for each file
 progress_dict = {}
 
-async def progress_callback(current, total, chat_id, filename, process_name, edit):
+def progress_callback(current, total, chat_id, filename, process_name, edit):
     """Update conversion/optimization progress and send periodic messages."""
     percentage = int((current / total) * 100)
 
     if progress_dict.get(filename, 0) + 5 <= percentage:
         progress_dict[filename] = percentage
         # Edit the message with updated progress
-        await client.edit_message(
-            chat_id,
-            edit.id,
-            f"{process_name} progress: {percentage}%"
+        asyncio.run_coroutine_threadsafe(
+            client.edit_message(
+                chat_id,
+                edit.id,
+                f"{process_name} progress: {percentage}%"
+            ),
+            client.loop
         )
         
 def progress_callbackk(current, total, chat_id, filename, process_name,edit):
