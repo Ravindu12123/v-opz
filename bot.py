@@ -75,24 +75,30 @@ async def upload_media(chat_id, file_path,edit):
     )
 
         
-async def convert_to_mp4(input_path, output_path, filename,edit):
+def convert_to_mp4(input_path, output_path, filename,chat_id,edit):
     progress={}
     progress[filename] = {"pres":"","st":""}
     progress[filename]["pres"] = "Optimizing: 0%"
-    
     class MyBarLogger(ProgressBarLogger):
       def callback(self, **changes):
         for (parameter, value) in changes.items():
             progress[filename]["st"]='Parameter %s is now %s' % (parameter, value)
 
-      async def bars_callback(self, bar, attr, value,old_value=None):
+      def bars_callback(self, bar, attr, value,old_value=None):
         percentage = (value / self.bars[bar]['total']) * 100
         npr=f"Optimizing: {percentage:.2f}%"
         if float(percentage) % 5 == 0:
            progress[filename]["pres"]=npr
            print(progress[filename])
-           await edit.edit(f'**Optimizing**\n status: {progress[filename]["st"]}\nprecentage: {progress[filename]["pres"]}')
-    
+           #await edit.edit(f'**Optimizing**\n status: {progress[filename]["st"]}\nprecentage: {progress[filename]["pres"]}')
+           asyncio.run_coroutine_threadsafe(
+            client.edit_message(
+                chat_id,
+                edit.id,
+                f'**Optimizing**\n status: {progress[filename]["st"]}\nprecentage: {progress[filename]["pres"]}'
+            ),
+            client.loop
+           )      
     logger = MyBarLogger()
     try:
         with VideoFileClip(input_path) as video:
@@ -106,11 +112,11 @@ async def convert_to_mp4(input_path, output_path, filename,edit):
         progress[filename]["st"] = "Optimized"
     except Exception as e:
         progress[filename] = f"Error: {str(e)}"
-        print(f"Error optimizing {filename}: {e}")
-    print("Optimization complete for:", filename)
+        #print(f"Error optimizing {filename}: {e}")
+    #print("Optimization complete for:", filename)
 
 
-async def optimize_video(input_path, output_path, filename,edit):
+def optimize_video(input_path, output_path, filename,chat_id,edit):
     progress={}
     progress[filename] = {"pres":"","st":""}
     progress[filename]["pres"] = "Optimizing: 0%"
@@ -124,8 +130,15 @@ async def optimize_video(input_path, output_path, filename,edit):
         if float(percentage) % 5 == 0:
           progress[filename]["pres"]=npr
           print(progress[filename])
-          edit.edit(f'**Optimizing**\n status: {progress[filename]["st"]}\nprecentage: {progress[filename]["pres"]}')
-    
+          #edit.edit(f'**Optimizing**\n status: {progress[filename]["st"]}\nprecentage: {progress[filename]["pres"]}')
+          asyncio.run_coroutine_threadsafe(
+            client.edit_message(
+                chat_id,
+                edit.id,
+                f'**Optimizing**\n status: {progress[filename]["st"]}\nprecentage: {progress[filename]["pres"]}'
+            ),
+            client.loop
+          )
     logger = MyBarLogger()
     try:
         with VideoFileClip(input_path) as video:
@@ -139,8 +152,8 @@ async def optimize_video(input_path, output_path, filename,edit):
         progress[filename]["st"] = "Optimized"
     except Exception as e:
         progress[filename] = f"Error: {str(e)}"
-        print(f"Error optimizing {filename}: {e}")
-    print("Optimization complete for:", filename)
+        #print(f"Error optimizing {filename}: {e}")
+    #print("Optimization complete for:", filename)
 
 
 @client.on(events.NewMessage(pattern='/start'))
@@ -171,14 +184,14 @@ async def handle_video(event):
         if not filename.endswith(".mp4"):
             #await event.reply("Converting video to MP4 format...")
             await edit.edit("**Converting to MP4**")
-            await convert_to_mp4(filename, mp4_path, event.chat_id,edit)
+            await convert_to_mp4(filename, mp4_path, filename,event.chat_id,edit)
             input_path = mp4_path
         else:
             input_path = filename
 
         #await event.reply("Optimizing the video...")
         await edit.edit("**Optimizing video...**")
-        await optimize_video(input_path, output_path, event.chat_id,edit)
+        await optimize_video(input_path, output_path,filename, event.chat_id,edit)
 
         #await event.reply("Uploading the optimized video...")
         await edit.edit("**Uploading...**")
