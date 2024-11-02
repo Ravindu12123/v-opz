@@ -166,7 +166,7 @@ async def start(event):
         return
     await event.reply("Hello! Send me a video file, and I'll optimize it for you.")
 
-Drone.on(events.callbackquery.CallbackQuery(data="pro_up"))
+@client.on(events.callbackquery.CallbackQuery(data="pro_up"))
 async def sh_prog(event):
     fname=progress["file"]
     event.edit(f'**{progress[fname]["st"]}...**\n\npres: {progress[fname]["pres"]}',buttons=pbt)
