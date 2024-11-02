@@ -71,7 +71,9 @@ def progress_callbackk(current, total, chat_id, filename, process_name,edit):
 async def download_media(event, output_dir,edit):
     """Download media with progress tracking."""
     filename = None
-
+    progress = {"pres":"downloaded: 0%","st":"Starting download!!"}
+    await edit.edit("downloading...",buttons=pbt)
+    
     def download_progress(current, total):
         progress_callback(current, total, event.chat_id, "Download", "Downloading",edit)
         #percentage = int((current / total) * 100)
@@ -88,7 +90,8 @@ async def download_media(event, output_dir,edit):
 
 async def upload_media(chat_id, file_path,edit):
     """Upload media with progress tracking."""
-
+    progress = {"pres":"Uploaded: 0%","st":"Starting upload..."}
+    
     def upload_progress(current, total):
         progress_callback(current, total, chat_id, "Upload", "Uploading",edit)
 
@@ -193,7 +196,7 @@ async def sh_prog(event):
      if progress["st"] & progress["pres"]:
          await event.edit(f'**{progress["st"]}...**\n\npres: {progress["pres"]}',buttons=pbt)
      else:
-         await event.edit(f"No progress for {progress}")
+         await event.edit(f"No progress ")
   except Exception as e:
       await event.edit(f"Err on progress showing: {e}")
 
@@ -214,8 +217,8 @@ async def handle_video(event):
       try:
         #await event.reply("Downloading your video...")
           run = 1
-          edit=await client.send_message(event.sender_id,"**Downloading...**",buttons=pbt)
-        
+          progress = {"pres":"downloaded: 0%","st":"Starting download!!"}
+          edit=await client.send_message(event.sender_id,"**Downloading...**")
           filename = await download_media(event, DOWNLOAD_DIR,edit)
           output_path = os.path.join(DOWNLOAD_DIR, f"optimized_{os.path.basename(filename)}")
           mp4_path = os.path.join(DOWNLOAD_DIR, f"converted_{os.path.basename(filename)}.mp4")
