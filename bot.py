@@ -27,6 +27,7 @@ client = TelegramClient('video_optimizer_bot', API_ID, API_HASH).start(bot_token
 # Dictionary to store progress for each file
 progress = {}
 progress_dict = {}
+run=0
 
 def progress_callbackk(current, total, chat_id, filename, process_name, edit):
     """Update conversion/optimization progress and send periodic messages."""
@@ -203,51 +204,52 @@ async def handle_video(event):
     filename = None
     output_path = None
     mp4_path = None
-    if progress != {}:
+    if run == 1:
       await client.send_message(event.sender_id,"alredy in a process")
       return
     else:
       try:
         #await event.reply("Downloading your video...")
-        edit=await client.send_message(event.sender_id,"**Downloading...**",buttons=pbt)
+          run = 1
+          edit=await client.send_message(event.sender_id,"**Downloading...**",buttons=pbt)
         
-        filename = await download_media(event, DOWNLOAD_DIR,edit)
-        output_path = os.path.join(DOWNLOAD_DIR, f"optimized_{os.path.basename(filename)}")
-        mp4_path = os.path.join(DOWNLOAD_DIR, f"converted_{os.path.basename(filename)}.mp4")
-
-        if not filename.endswith(".mp4"):
+          filename = await download_media(event, DOWNLOAD_DIR,edit)
+          output_path = os.path.join(DOWNLOAD_DIR, f"optimized_{os.path.basename(filename)}")
+          mp4_path = os.path.join(DOWNLOAD_DIR, f"converted_{os.path.basename(filename)}.mp4")
+ 
+          if not filename.endswith(".mp4"):
             #await event.reply("Converting video to MP4 format...")
             await edit.edit("**Converting to MP4**",
                            buttons=pbt
                            )
             await convert_to_mp4(filename, mp4_path, filename,event.chat_id,edit)
             input_path = mp4_path
-        else:
+          else:
             input_path = filename
 
         #await event.reply("Optimizing the video...")
-        await edit.edit("**Optimizing video...**",buttons=pbt)
-        await optimize_video(input_path, output_path,filename, event.chat_id,edit)
+          await edit.edit("**Optimizing video...**",buttons=pbt)
+          await optimize_video(input_path, output_path,filename, event.chat_id,edit)
 
         #await event.reply("Uploading the optimized video...")
-        await edit.edit("**Uploading...**",buttons=pbt)
-        await upload_media(event.chat_id, output_path,edit)
-
+          await edit.edit("**Uploading...**",buttons=pbt)
+          await upload_media(event.chat_id, output_path,edit)
+  
       except Exception as e:
         #await event.reply(f"Error during processing: {e}")
-        print(f"Err while process: {e}")
-        await edit.edit(f"Err during process: {e}")
+          print(f"Err while process: {e}")
+          await edit.edit(f"Err during process: {e}")
       finally:
-        if filename and os.path.exists(filename):
+          if filename and os.path.exists(filename):
             os.remove(filename)
-        if mp4_path and os.path.exists(mp4_path):
+          if mp4_path and os.path.exists(mp4_path):
             os.remove(mp4_path)
-        if output_path and os.path.exists(output_path):
+          if output_path and os.path.exists(output_path):
             os.remove(output_path)
-        if filename:
+          if filename:
             progress_dict.pop(os.path.basename(filename), None)
-        if progress!={}:
-            progress={}
+          if run == 1:
+             run = 0
 # Start the bot
 print("Bot is running...")
 client.run_until_disconnected()
