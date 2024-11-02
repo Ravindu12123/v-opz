@@ -197,6 +197,7 @@ async def sh_prog(event):
 #☆on vid -----------------------------------------------------------------------------------------------------------------
 @client.on(events.NewMessage(func=lambda e: e.video))
 async def handle_video(event):
+    global run
     if event.sender_id not in AUTHORIZED_USERS:
         await event.reply("Sorry, you are not authorized to use this bot.")
         return
@@ -204,7 +205,7 @@ async def handle_video(event):
     filename = None
     output_path = None
     mp4_path = None
-    if run == 1:
+    if run >= 1:
       await client.send_message(event.sender_id,"alredy in a process")
     else:
       try:
