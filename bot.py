@@ -29,7 +29,7 @@ progress = {}
 progress_dict = {}
 run=0
 
-def progress_callback(current, total, chat_id, filename, process_name, edit):
+def progress_callbackf(current, total, chat_id, filename, process_name, edit):
     """Update conversion/optimization progress and send periodic messages."""
     percentage = int((current / total) * 100)
 
@@ -44,6 +44,15 @@ def progress_callback(current, total, chat_id, filename, process_name, edit):
             ),
             client.loop
         )
+def progress_callback(current, total, chat_id, filename, process_name, edit):
+    """Update conversion/optimization progress and send periodic messages."""
+    percentage = int((current / total) * 100)
+
+    if progress_dict.get(filename, 0) + 5 <= percentage:
+        progress_dict[filename] = percentage
+        # Edit the message with updated progress
+        progress["st"]="**Downloading...**"
+        progress["pres"]=f"Downloading: {percentage}%"
         
 def progress_callbackk(current, total, chat_id, filename, process_name,edit):
     """Update conversion/optimization progress and send periodic messages."""
@@ -93,18 +102,17 @@ async def upload_media(chat_id, file_path,edit):
 
         
 def convert_to_mp4(input_path, output_path, filename,chat_id,edit):
-    progress["file"]=filename
-    progress[filename] = {"pres":"Converting: 0%","st":"starting..."}
+    progress = {"pres":"Converting: 0%","st":"starting..."}
     class MyBarLogger(ProgressBarLogger):
       def callback(self, **changes):
         for (parameter, value) in changes.items():
-            progress[filename]["st"]='Converting to Mp4'
+            progress["st"]='Converting to Mp4'
 
       def bars_callback(self, bar, attr, value,old_value=None):
         percentage = (value / self.bars[bar]['total']) * 100
         npr=f"Converting: {percentage:.2f}%"
         if float(percentage) % 1 == 0:
-           progress[filename]["pres"]=npr
+           progress["pres"]=npr
            #print(progress[filename])
            #await edit.edit(f'**Optimizing**\n status: {progress[filename]["st"]}\nprecentage: {progress[filename]["pres"]}')
            #asyncio.run_coroutine_threadsafe(
@@ -125,27 +133,26 @@ def convert_to_mp4(input_path, output_path, filename,chat_id,edit):
             audio=True,
             logger=logger
             )
-        progress[filename]["st"] = "Converted..."
+        progress["st"] = "Converted..."
     except Exception as e:
-        progress[filename] = f"Error: {str(e)}"
+        progress = f"Error: {str(e)}"
         print(f"Error optimizing {filename}: {e}")
     #print("Optimization complete for:", filename)
 
 
 def optimize_video(input_path, output_path, filename,chat_id,edit):
     #progress={}
-    progress["file"]=filename
-    progress[filename] = {"pres":"Optimizing: 0%","st":"Starting..."}
+    progress = {"pres":"Optimizing: 0%","st":"Starting..."}
     #progress[filename]["pres"] = "Optimizing: 0%"
     class MyBarLogger(ProgressBarLogger):
       def callback(self, **changes):
         for (parameter, value) in changes.items():
-            progress[filename]["st"]='Parameter %s is now %s' % (parameter, value)
+            progress["st"]='Parameter %s is now %s' % (parameter, value)
       def bars_callback(self, bar, attr, value,old_value=None):
         percentage = (value / self.bars[bar]['total']) * 100
         npr=f"Optimizing: {percentage:.2f}%"
         if float(percentage) % 1 == 0:
-          progress[filename]["pres"]=npr
+          progress["pres"]=npr
           #print(progress[filename])
           #edit.edit(f'**Optimizing**\n status: {progress[filename]["st"]}\nprecentage: {progress[filename]["pres"]}')
           #asyncio.run_coroutine_threadsafe(
@@ -166,9 +173,9 @@ def optimize_video(input_path, output_path, filename,chat_id,edit):
                 audio=True,
                 logger=logger
             )
-        progress[filename]["st"] = "Optimized..."
+        progress["st"] = "Optimized..."
     except Exception as e:
-        progress[filename] = f"Error: {str(e)}"
+        progress = f"Error: {str(e)}"
         print(f"Error optimizing {filename}: {e}")
     #print("Optimization complete for:", filename)
 
@@ -183,14 +190,10 @@ async def start(event):
 @client.on(events.callbackquery.CallbackQuery(data="pro_up"))
 async def sh_prog(event):
   try:
-    if progress["file"]:
-       fname=progress["file"]
-       if progress[file]["st"] & progress[fname]["pres"]:
-          await event.edit(f'**{progress[fname]["st"]}...**\n\npres: {progress[fname]["pres"]}',buttons=pbt)
-       else:
-          await event.edit(f"No progress for {progress[fname]}")
-    else:
-       await event.edit(f"can't find file")
+     if progress["st"] & progress["pres"]:
+         await event.edit(f'**{progress["st"]}...**\n\npres: {progress["pres"]}',buttons=pbt)
+     else:
+         await event.edit(f"No progress for {progress}")
   except Exception as e:
       await event.edit(f"Err on progress showing: {e}")
 
