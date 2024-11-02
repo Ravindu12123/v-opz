@@ -169,7 +169,7 @@ async def start(event):
 Drone.on(events.callbackquery.CallbackQuery(data="pro_up"))
 async def sh_prog(event):
     fname=progress["file"]
-    event.edit(f"**{progress[fname]["st"]}...**\n\npres: {progress[fname]["pres"]}",buttons=pbt)
+    event.edit(f'**{progress[fname]["st"]}...**\n\npres: {progress[fname]["pres"]}',buttons=pbt)
 
 @client.on(events.NewMessage(func=lambda e: e.video))
 async def handle_video(event):
