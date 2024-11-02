@@ -168,8 +168,17 @@ async def start(event):
 
 @client.on(events.callbackquery.CallbackQuery(data="pro_up"))
 async def sh_prog(event):
-    fname=progress["file"]
-    event.edit(f'**{progress[fname]["st"]}...**\n\npres: {progress[fname]["pres"]}',buttons=pbt)
+  try:
+    if progress["file"]:
+       fname=progress["file"]
+       if progress[file]["st"] & progress[fname]["pres"]:
+          await event.edit(f'**{progress[fname]["st"]}...**\n\npres: {progress[fname]["pres"]}',buttons=pbt)
+       else:
+          await event.edit(f"No progress for {progress[fname]}")
+    else:
+       await event.edit(f"can't find file")
+  except Exception as e:
+      await event.edit(f"Err on progress showing: {e}")
 
 @client.on(events.NewMessage(func=lambda e: e.video))
 async def handle_video(event):
