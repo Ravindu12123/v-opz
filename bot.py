@@ -64,7 +64,15 @@ async def download_media(event, output_dir,edit):
 
     def download_progress(current, total):
         progress_callback(current, total, event.chat_id, "Download", "Downloading",edit)
-
+        #percentage = int((current / total) * 100)
+        #if progress[filename]:
+          # progress[filename]["st"]="**Downloading...**"
+          # progress[filename]["pres"]=f"Downloading: {percentage:.2f}%"
+       # else:
+          # progress[filename]={}
+          #   progress[filename]["st"]="**Downloading...**"
+          #   progress[filename]["pres"]=f"Downloading: {percentage:.2f}%"            
+    
     filename = await event.download_media(output_dir, progress_callback=download_progress)
     return filename
 
