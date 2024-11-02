@@ -95,7 +95,7 @@ def convert_to_mp4(input_path, output_path, filename,chat_id,edit):
             client.edit_message(
                 chat_id,
                 edit.id,
-                f'**Optimizing**\n status: {progress[filename]["st"]}\nprecentage: {progress[filename]["pres"]}'
+                f'**Converting...**\n status: {progress[filename]["st"]}\nprecentage: {progress[filename]["pres"]}'
             ),
             client.loop
            )      
@@ -112,7 +112,7 @@ def convert_to_mp4(input_path, output_path, filename,chat_id,edit):
         progress[filename]["st"] = "Optimized"
     except Exception as e:
         progress[filename] = f"Error: {str(e)}"
-        #print(f"Error optimizing {filename}: {e}")
+        print(f"Error optimizing {filename}: {e}")
     #print("Optimization complete for:", filename)
 
 
@@ -135,7 +135,7 @@ def optimize_video(input_path, output_path, filename,chat_id,edit):
             client.edit_message(
                 chat_id,
                 edit.id,
-                f'**Optimizing**\n status: {progress[filename]["st"]}\nprecentage: {progress[filename]["pres"]}'
+                f'**Optimizing...**\n status: {progress[filename]["st"]}\nprecentage: {progress[filename]["pres"]}'
             ),
             client.loop
           )
@@ -152,7 +152,7 @@ def optimize_video(input_path, output_path, filename,chat_id,edit):
         progress[filename]["st"] = "Optimized"
     except Exception as e:
         progress[filename] = f"Error: {str(e)}"
-        #print(f"Error optimizing {filename}: {e}")
+        print(f"Error optimizing {filename}: {e}")
     #print("Optimization complete for:", filename)
 
 
@@ -199,6 +199,7 @@ async def handle_video(event):
 
     except Exception as e:
         #await event.reply(f"Error during processing: {e}")
+        print(f"Err while process: {e}")
         await edit.edit(f"Err during process: {e}")
     finally:
         if filename and os.path.exists(filename):
