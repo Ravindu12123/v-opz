@@ -50,8 +50,13 @@ def progress_callback(current, total, chat_id, filename, process_name,edit):
 
     if progress_dict.get(filename, 0) + 1 <= percentage:
         progress_dict[filename] = percentage
-        progress[filename]["st"]="**Downloading...**"
-        progress[filename]["pres"]=f"Downloading: {percentage}%"
+        if progress[filename]:
+           progress[filename]["st"]="**Downloading...**"
+           progress[filename]["pres"]=f"Downloading: {percentage}%"
+        else:
+           progress[filename]={}
+           progress[filename]["st"]="**Downloading...**"
+           progress[filename]["pres"]=f"Downloading: {percentage}%"            
 
 async def download_media(event, output_dir,edit):
     """Download media with progress tracking."""
