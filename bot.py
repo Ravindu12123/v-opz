@@ -26,8 +26,9 @@ client = TelegramClient('video_optimizer_bot', API_ID, API_HASH).start(bot_token
 
 # Dictionary to store progress for each file
 progress = {}
+progress_dict = {}
 
-def progress_callback(current, total, chat_id, filename, process_name, edit):
+def progress_callbackk(current, total, chat_id, filename, process_name, edit):
     """Update conversion/optimization progress and send periodic messages."""
     percentage = int((current / total) * 100)
 
@@ -43,16 +44,14 @@ def progress_callback(current, total, chat_id, filename, process_name, edit):
             client.loop
         )
         
-def progress_callbackk(current, total, chat_id, filename, process_name,edit):
+def progress_callback(current, total, chat_id, filename, process_name,edit):
     """Update conversion/optimization progress and send periodic messages."""
     percentage = int((current / total) * 100)
 
-    if progress_dict.get(filename, 0) + 5 <= percentage:
+    if progress_dict.get(filename, 0) + 1 <= percentage:
         progress_dict[filename] = percentage
-        asyncio.run_coroutine_threadsafe(
-            client.send_message(chat_id,f"{process_name} progress: {percentage}%"),
-            client.loop
-        )
+        progress[filename]["st"]="**Downloading...**"
+        progress[filename]["pres"]=f"Downloading: {percentage}%"
 
 async def download_media(event, output_dir,edit):
     """Download media with progress tracking."""
@@ -85,7 +84,7 @@ def convert_to_mp4(input_path, output_path, filename,chat_id,edit):
     class MyBarLogger(ProgressBarLogger):
       def callback(self, **changes):
         for (parameter, value) in changes.items():
-            progress[filename]["st"]='Parameter %s is now %s' % (parameter, value)
+            progress[filename]["st"]='Converting to Mp4'
 
       def bars_callback(self, bar, attr, value,old_value=None):
         percentage = (value / self.bars[bar]['total']) * 100
@@ -184,7 +183,7 @@ async def handle_video(event):
 
     try:
         #await event.reply("Downloading your video...")
-        edit=await client.send_message(event.sender_id,"**Downloading...**")
+        edit=await client.send_message(event.sender_id,"**Downloading...**",buttons=pbt)
         
         filename = await download_media(event, DOWNLOAD_DIR,edit)
         output_path = os.path.join(DOWNLOAD_DIR, f"optimized_{os.path.basename(filename)}")
@@ -205,7 +204,7 @@ async def handle_video(event):
         await optimize_video(input_path, output_path,filename, event.chat_id,edit)
 
         #await event.reply("Uploading the optimized video...")
-        await edit.edit("**Uploading...**")
+        await edit.edit("**Uploading...**",buttons=pbt)
         await upload_media(event.chat_id, output_path,edit)
 
     except Exception as e:
