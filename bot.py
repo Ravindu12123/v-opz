@@ -29,7 +29,7 @@ progress = {}
 progress_dict = {}
 run=0
 
-def progress_callbackk(current, total, chat_id, filename, process_name, edit):
+def progress_callback(current, total, chat_id, filename, process_name, edit):
     """Update conversion/optimization progress and send periodic messages."""
     percentage = int((current / total) * 100)
 
@@ -45,19 +45,19 @@ def progress_callbackk(current, total, chat_id, filename, process_name, edit):
             client.loop
         )
         
-def progress_callback(current, total, chat_id, filename, process_name,edit):
+def progress_callbackk(current, total, chat_id, filename, process_name,edit):
     """Update conversion/optimization progress and send periodic messages."""
     percentage = int((current / total) * 100)
 
-    if progress_dict.get(filename, 0) + 1 <= percentage:
-        progress_dict[filename] = percentage
-        if progress[filename]:
-           progress[filename]["st"]="**Downloading...**"
-           progress[filename]["pres"]=f"Downloading: {percentage}%"
-        else:
-           progress[filename]={}
-           progress[filename]["st"]="**Downloading...**"
-           progress[filename]["pres"]=f"Downloading: {percentage}%"            
+    #if progress_dict.get(filename, 0) + 1 <= percentage:
+        #progress_dict[filename] = percentage 
+    if progress[filename]:
+        progress[filename]["st"]="**Downloading...**"
+        progress[filename]["pres"]=f"Downloading: {percentage}%"
+    else:
+        progress[filename]={}
+        progress[filename]["st"]="**Downloading...**"
+        progress[filename]["pres"]=f"Downloading: {percentage}%"            
 
 async def download_media(event, output_dir,edit):
     """Download media with progress tracking."""
