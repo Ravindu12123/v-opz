@@ -206,7 +206,6 @@ async def handle_video(event):
     mp4_path = None
     if run == 1:
       await client.send_message(event.sender_id,"alredy in a process")
-      return
     else:
       try:
         #await event.reply("Downloading your video...")
